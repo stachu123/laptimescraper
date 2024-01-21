@@ -6,7 +6,7 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-
+import re
 import psycopg2
 
 
@@ -23,16 +23,19 @@ class PostgresLapTimesCleanPipeline:
         for field_name in field_names:
             if field_name != 'race':
                 value = adapter.get(field_name)
-                adapter[field_name] = value.strip()
+                if adapter[field_name] != None:
+                    adapter[field_name] = value.strip()
 
         # changing the lap to integer
         value = adapter.get('lap')
         adapter['lap'] = int(value)
 
         #transforming the 00:00:00 format to the number of miliseconds,
-        value = adapter.get('laptime')
-        minutes, seconds, milliseconds = map(int, value.split(':'))
-        adapter['laptime'] = minutes * 60 * 1000 + seconds * 1000 + milliseconds
+        value = adapter.get('lap_time')
+        minutes, rest =  value.split(":")
+        minutes = int(minutes)
+        seconds, milliseconds = map(int, rest.split("."))
+        adapter['lap_time'] = minutes * 60 * 1000 + seconds * 1000 + milliseconds 
 
         return item
 

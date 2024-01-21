@@ -10,7 +10,6 @@ class LaptimeItem(scrapy.Item):
     lap = scrapy.Field()
     position = scrapy.Field()
     lap_time = scrapy.Field()
-    pit_stop_time = scrapy.Field()
     driver_name = scrapy.Field()
     driver_surname = scrapy.Field()
     race = scrapy.Field()
