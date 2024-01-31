@@ -3,7 +3,7 @@ from laptime_scraper.items import LaptimeItem
 import requests
 from random import randint
 
-SCRAPEOPS_API_KEY = 'a94abf52-21c6-4992-81af-db355ea932ce'
+SCRAPEOPS_API_KEY = '***'
 
 def get_headers_list():
   response = requests.get('http://headers.scrapeops.io/v1/browser-headers?api_key=' + SCRAPEOPS_API_KEY)
