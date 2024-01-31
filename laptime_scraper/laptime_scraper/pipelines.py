@@ -46,39 +46,42 @@ class PostgresLapTimesSQLPipeline:
     def __init__(self):
         hostname = 'localhost'
         username = 'postgres'
-        password = 'Piromaniak123'
+        password = '*****'
         database = 'Laptimes'
 
         self.connection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
         self.cur = self.connection.cursor()
 
         self.cur.execute("""
-                    CREATE TABLE IF NOT EXISTS Races (
-                        RaceName varchar(100) NOT NULL PRIMARY KEY
-                    );
-            
-                    CREATE TABLE IF NOT EXISTS Drivers (
-                        DriverSurname varchar(50) NOT NULL PRIMARY KEY,
-                        DriverName varchar(50) NULL             
-                    );
-            
                     CREATE TABLE IF NOT EXISTS Laptimes (  
                         LapID SERIAL,
                         LapNumber int NOT NULL DEFAULT 0,
                         RaceName varchar(100) NOT NULL,
-                        DrviverSurname varchar(50) NOT NULL,
+                        DriverSurname varchar(50) NOT NULL,
+                        DriverName varchar(50) NOT NULL,
                         Position varchar(10), 
                         Laptime int NOT NULL DEFAULT 0
                 
                      );""")
-
-        def process_item(self, item, spider):
-            self.cur.execute("""
-                INSERT INTO 
-            """)
-            return item
-
-
-class LaptimesPipeline:
     def process_item(self, item, spider):
+
+        self.cur.execute(""" insert into Laptimes (LapNumber, RaceName, DriverSurname, DriverName, Position, Laptime) values (%s,%s,%s,%s,%s,%s)""", (
+            item["lap"],
+            item["race"],
+            item["driver_surname"],
+            item['driver_name'],
+            item["position"],
+            item["lap_time"]
+        ))
+
+        
+        self.connection.commit()
         return item
+        
+        def close_spider(self, spider):
+
+            ## Close cursor & connection to database 
+            self.cur.close()
+            self.connection.close()
+
+

@@ -1,6 +1,21 @@
 import scrapy
 from laptime_scraper.items import LaptimeItem
+import requests
+from random import randint
 
+SCRAPEOPS_API_KEY = 'a94abf52-21c6-4992-81af-db355ea932ce'
+
+def get_headers_list():
+  response = requests.get('http://headers.scrapeops.io/v1/browser-headers?api_key=' + SCRAPEOPS_API_KEY)
+  json_response = response.json()
+  return json_response.get('result', [])
+
+def get_random_header(header_list):
+  random_index = randint(0, len(header_list) - 1)
+  return header_list[random_index]
+
+
+header_list = get_headers_list()
 
 class LaptimesSpider(scrapy.Spider):
     name = "laptimespider"
@@ -11,12 +26,12 @@ class LaptimesSpider(scrapy.Spider):
         races_ids = response.css('select[name="race"] option::attr(value)').getall()
         driver_ids = response.css('select[name="driver"] option::attr(value)').getall()
 
-        # for driver in driver_ids:
-        #     for race in races_ids:
-        #         url = f'https://pitwall.app/analysis/race-report?utf8=%E2%9C%93&season=75&race={race}&driver={driver}&button='
-        #         yield scrapy.Request(url, callback=self.parse_race_data)
-        url = f'https://pitwall.app/analysis/race-report?utf8=%E2%9C%93&season=75&race=1178&driver=17&button='
-        yield scrapy.Request(url, callback=self.parse_race_data)
+        for driver in driver_ids:
+            for race in races_ids:
+                url = f'https://pitwall.app/analysis/race-report?utf8=%E2%9C%93&season=75&race={race}&driver={driver}&button='
+                yield scrapy.Request(url, callback=self.parse_race_data, headers=get_random_header(header_list))
+        # url = f'https://pitwall.app/analysis/race-report?utf8=%E2%9C%93&season=75&race=1178&driver=17&button='
+        # yield scrapy.Request(url, callback=self.parse_race_data, headers=get_random_header(header_list))
 
     def parse_race_data(self, response):
         table = response.css('.data-table.data-table-small > tbody')
